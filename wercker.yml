@@ -2,5 +2,5 @@ box: maven:latest
 build:
   steps:
     - xenoterracide/maven:
-        debug: 2
+        debug: 3
         goals: clean test jacoco:report coveralls:report -DrepoToken=$COVERALLS_TOKEN
