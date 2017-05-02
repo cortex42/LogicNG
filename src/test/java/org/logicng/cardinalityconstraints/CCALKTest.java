@@ -28,8 +28,10 @@
 
 package org.logicng.cardinalityconstraints;
 
-import org.junit.Assert;
+import org.assertj.core.api.JUnitSoftAssertions;
+import org.junit.Rule;
 import org.junit.Test;
+import org.logicng.configurations.ConfigurationType;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.CType;
@@ -44,10 +46,13 @@ import java.util.List;
 
 /**
  * Unit tests for the at-least-k configs.
- * @version 1.1
+ * @version 1.2
  * @since 1.0
  */
 public class CCALKTest {
+
+  @Rule
+  public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
 
   private CCConfig[] configs;
 
@@ -76,7 +81,7 @@ public class CCALKTest {
       testCC(10, 9, 11, f);
       testCC(10, 10, 1, f);
       testCC(10, 12, 0, f);
-      Assert.assertTrue(f.newCCVariable().name().endsWith("_" + counter++));
+      softly.assertThat(f.newCCVariable().name()).as("New Var after Tests " + config).endsWith("_" + counter++);
     }
   }
 
@@ -87,13 +92,13 @@ public class CCALKTest {
     final SATSolver solver = MiniSat.miniSat(f);
     solver.add(f.cc(CType.GE, rhs, problemLits));
     if (expected != 0)
-      Assert.assertEquals(Tristate.TRUE, solver.sat());
+      softly.assertThat(solver.sat()).as("SolverSAT " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isEqualTo(Tristate.TRUE);
     else
-      Assert.assertEquals(Tristate.FALSE, solver.sat());
+      softly.assertThat(solver.sat()).as("SolverSAT " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isEqualTo(Tristate.FALSE);
     final List<Assignment> models = solver.enumerateAllModels(problemLits, new NumberOfModelsHandler(12000));
-    Assert.assertEquals(expected, models.size());
+    softly.assertThat(models.size()).as("ModelSize " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isEqualTo(expected);
     for (final Assignment model : models)
-      Assert.assertTrue(model.positiveLiterals().size() >= rhs);
+      softly.assertThat(model.positiveLiterals().size()).as("PosLits " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isGreaterThanOrEqualTo(rhs);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -110,18 +115,18 @@ public class CCALKTest {
   @Test
   public void testToString() {
     FormulaFactory f = new FormulaFactory();
-    Assert.assertEquals("TOTALIZER", configs[0].alkEncoder.toString());
-    Assert.assertEquals("MODULAR_TOTALIZER", configs[1].alkEncoder.toString());
-    Assert.assertEquals("CARDINALITY_NETWORK", configs[2].alkEncoder.toString());
+    softly.assertThat(configs[0].alkEncoder.toString()).isEqualTo("TOTALIZER");
+    softly.assertThat(configs[1].alkEncoder.toString()).isEqualTo("MODULAR_TOTALIZER");
+    softly.assertThat(configs[2].alkEncoder.toString()).isEqualTo("CARDINALITY_NETWORK");
 
-    Assert.assertEquals("CCTotalizer", new CCTotalizer().toString());
-    Assert.assertEquals("CCModularTotalizer", new CCModularTotalizer(f).toString());
-    Assert.assertEquals("CCCardinalityNetworks", new CCCardinalityNetworks().toString());
+    softly.assertThat(new CCTotalizer().toString()).isEqualTo("CCTotalizer");
+    softly.assertThat(new CCModularTotalizer(f).toString()).isEqualTo("CCModularTotalizer");
+    softly.assertThat(new CCCardinalityNetworks().toString()).isEqualTo("CCCardinalityNetworks");
 
-    Assert.assertEquals("CCALKTotalizer", new CCALKTotalizer().toString());
-    Assert.assertEquals("CCALKModularTotalizer", new CCALKModularTotalizer(f).toString());
-    Assert.assertEquals("CCALKCardinalityNetwork", new CCALKCardinalityNetwork().toString());
+    softly.assertThat(new CCALKTotalizer().toString()).isEqualTo("CCALKTotalizer");
+    softly.assertThat(new CCALKModularTotalizer(f).toString()).isEqualTo("CCALKModularTotalizer");
+    softly.assertThat(new CCALKCardinalityNetwork().toString()).isEqualTo("CCALKCardinalityNetwork");
 
-    Assert.assertTrue(Arrays.asList(CCConfig.ALK_ENCODER.values()).contains(CCConfig.ALK_ENCODER.valueOf("MODULAR_TOTALIZER")));
+    softly.assertThat(Arrays.asList(CCConfig.ALK_ENCODER.values()).contains(CCConfig.ALK_ENCODER.valueOf("MODULAR_TOTALIZER")));
   }
 }
