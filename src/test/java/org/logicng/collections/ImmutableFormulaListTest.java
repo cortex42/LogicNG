@@ -28,7 +28,8 @@
 
 package org.logicng.collections;
 
-import org.junit.Assert;
+import org.assertj.core.api.JUnitSoftAssertions;
+import org.junit.Rule;
 import org.junit.Test;
 import org.logicng.formulas.FType;
 import org.logicng.formulas.FormulaFactory;
@@ -36,10 +37,14 @@ import org.logicng.formulas.Variable;
 
 /**
  * Unit tests for {@link ImmutableFormulaList}.
- * @version 1.1
+ * @version 1.2
  * @since 1.1
  */
 public class ImmutableFormulaListTest {
+
+  @Rule
+  public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
+
   private FormulaFactory formulaFactory = new FormulaFactory();
   private Variable a = formulaFactory.variable("A");
   private Variable b = formulaFactory.variable("B");
@@ -47,7 +52,7 @@ public class ImmutableFormulaListTest {
   @Test
   public void testFormula() {
     ImmutableFormulaList ifl = new ImmutableFormulaList(FType.AND, a, b);
-    Assert.assertEquals(ifl.formula(formulaFactory), ifl.formula(formulaFactory)); //On purpose to check if both ways in method lead to the same result
-    Assert.assertEquals(formulaFactory.and(a, b), ifl.formula(formulaFactory));
+    softly.assertThat(ifl.formula(formulaFactory)).isEqualTo(ifl.formula(formulaFactory)); //On purpose to check if both ways in method lead to the same result
+    softly.assertThat(formulaFactory.and(a, b)).isEqualTo(ifl.formula(formulaFactory));
   }
 }

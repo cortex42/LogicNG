@@ -28,7 +28,8 @@
 
 package org.logicng.datastructures;
 
-import org.junit.Assert;
+import org.assertj.core.api.JUnitSoftAssertions;
+import org.junit.Rule;
 import org.junit.Test;
 import org.logicng.formulas.F;
 import org.logicng.formulas.Formula;
@@ -43,43 +44,46 @@ import java.util.List;
 
 /**
  * Unit tests for the class {@link Assignment}.
- * @version 1.1
+ * @version 1.2
  * @since 1.0
  */
 public class AssignmentTest {
 
+  @Rule
+  public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
+
   @Test
   public void testCreators() {
-    Assert.assertNotNull(new Assignment(Arrays.asList(F.A, F.B, F.X, F.Y)));
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.X, F.Y))).isNotNull();
   }
 
   @Test
   public void testSize() {
-    Assert.assertEquals(4, new Assignment(Arrays.asList(F.A, F.B, F.X, F.Y), true).size());
-    Assert.assertEquals(4, new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), false).size());
-    Assert.assertEquals(2, new Assignment(Arrays.asList(F.A, F.NB)).size());
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.X, F.Y), true).size()).isEqualTo(4);
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), false).size()).isEqualTo(4);
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.NB)).size()).isEqualTo(2);
   }
 
   @Test
   public void testPositiveLiterals() {
     Literal[] a = {F.A, F.B, F.X, F.Y};
     Assignment ass1 = new Assignment(Arrays.asList(a), false);
-    Assert.assertEquals(Arrays.asList(a), ass1.positiveLiterals());
+    softly.assertThat(ass1.positiveLiterals()).isEqualTo(Arrays.asList(a));
     ass1 = new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY));
-    Assert.assertEquals(Arrays.asList(F.A, F.B), ass1.positiveLiterals());
+    softly.assertThat(ass1.positiveLiterals()).isEqualTo(Arrays.asList(F.A, F.B));
     ass1 = new Assignment(Arrays.asList(F.NA, F.NB, F.NX, F.NY));
-    Assert.assertEquals(0, ass1.positiveLiterals().size());
+    softly.assertThat(ass1.positiveLiterals().size()).isEqualTo(0);
   }
 
   @Test
   public void testNegativeLiterals() {
     Literal[] a = {F.NA, F.NB, F.NX, F.NY};
     Assignment ass = new Assignment(Arrays.asList(a));
-    Assert.assertEquals(Arrays.asList(a), ass.negativeLiterals());
+    softly.assertThat(ass.negativeLiterals()).isEqualTo(Arrays.asList(a));
     ass = new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY));
-    Assert.assertEquals(Arrays.asList(F.NX, F.NY), ass.negativeLiterals());
+    softly.assertThat(ass.negativeLiterals()).isEqualTo(Arrays.asList(F.NX, F.NY));
     ass = new Assignment(Arrays.asList(F.A, F.B, F.X, F.Y));
-    Assert.assertEquals(0, ass.negativeLiterals().size());
+    softly.assertThat(ass.negativeLiterals().size()).isEqualTo(0);
   }
 
   @Test
@@ -87,11 +91,11 @@ public class AssignmentTest {
     Literal[] a = {F.A, F.B, F.X, F.Y};
     Literal[] na = {F.NA, F.NB, F.NX, F.NY};
     Assignment ass = new Assignment(Arrays.asList(na));
-    Assert.assertEquals(Arrays.asList(a), ass.negativeVariables());
+    softly.assertThat(ass.negativeVariables()).isEqualTo(Arrays.asList(a));
     ass = new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY));
-    Assert.assertEquals(Arrays.asList(F.X, F.Y), ass.negativeVariables());
+    softly.assertThat(ass.negativeVariables()).isEqualTo(Arrays.asList(F.X, F.Y));
     ass = new Assignment(Arrays.asList(F.A, F.B, F.X, F.Y));
-    Assert.assertEquals(0, ass.negativeVariables().size());
+    softly.assertThat(ass.negativeVariables().size()).isEqualTo(0);
   }
 
   @Test
@@ -101,65 +105,65 @@ public class AssignmentTest {
     ass.addLiteral(F.B);
     ass.addLiteral(F.NX);
     ass.addLiteral(F.NY);
-    Assert.assertEquals(Arrays.asList(F.A, F.B), ass.positiveLiterals());
-    Assert.assertEquals(Arrays.asList(F.NX, F.NY), ass.negativeLiterals());
+    softly.assertThat(ass.positiveLiterals()).isEqualTo(Arrays.asList(F.A, F.B));
+    softly.assertThat(ass.negativeLiterals()).isEqualTo(Arrays.asList(F.NX, F.NY));
   }
 
   @Test
   public void testEvaluateLit() {
     Assignment ass = new Assignment(Arrays.asList(F.A, F.NX));
-    Assert.assertTrue(ass.evaluateLit(F.A));
-    Assert.assertTrue(ass.evaluateLit(F.NX));
-    Assert.assertTrue(ass.evaluateLit(F.NB));
-    Assert.assertFalse(ass.evaluateLit(F.NA));
-    Assert.assertFalse(ass.evaluateLit(F.X));
-    Assert.assertFalse(ass.evaluateLit(F.B));
+    softly.assertThat(ass.evaluateLit(F.A)).isTrue();
+    softly.assertThat(ass.evaluateLit(F.NX)).isTrue();
+    softly.assertThat(ass.evaluateLit(F.NB)).isTrue();
+    softly.assertThat(ass.evaluateLit(F.NA)).isFalse();
+    softly.assertThat(ass.evaluateLit(F.X)).isFalse();
+    softly.assertThat(ass.evaluateLit(F.B)).isFalse();
   }
 
   @Test
   public void testRestrictLit() {
     Assignment ass = new Assignment(Arrays.asList(F.A, F.NX));
-    Assert.assertEquals(F.TRUE, ass.restrictLit(F.A));
-    Assert.assertEquals(F.TRUE, ass.restrictLit(F.NX));
-    Assert.assertEquals(F.FALSE, ass.restrictLit(F.NA));
-    Assert.assertEquals(F.FALSE, ass.restrictLit(F.X));
-    Assert.assertEquals(null, ass.restrictLit(F.B));
-    Assert.assertEquals(null, ass.restrictLit(F.NB));
+    softly.assertThat(ass.restrictLit(F.A)).isEqualTo(F.TRUE);
+    softly.assertThat(ass.restrictLit(F.NX)).isEqualTo(F.TRUE);
+    softly.assertThat(ass.restrictLit(F.NA)).isEqualTo(F.FALSE);
+    softly.assertThat(ass.restrictLit(F.X)).isEqualTo(F.FALSE);
+    softly.assertThat(ass.restrictLit(F.B)).isNull();
+    softly.assertThat(ass.restrictLit(F.NB)).isNull();
   }
 
   @Test
   public void testFormula() throws ParserException {
     PropositionalParser p = new PropositionalParser(F.f);
-    Assert.assertEquals(p.parse("a"), new Assignment(Collections.singletonList(F.A)).formula(F.f));
-    Assert.assertEquals(p.parse("~a"), new Assignment(Collections.singletonList(F.NA)).formula(F.f));
-    Assert.assertEquals(p.parse("a & b"), new Assignment(Arrays.asList(F.A, F.B)).formula(F.f));
-    Assert.assertEquals(p.parse("a & b & ~x & ~y"), new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)).formula(F.f));
+    softly.assertThat(new Assignment(Collections.singletonList(F.A)).formula(F.f)).isEqualTo(p.parse("a"));
+    softly.assertThat(new Assignment(Collections.singletonList(F.NA)).formula(F.f)).isEqualTo(p.parse("~a"));
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B)).formula(F.f)).isEqualTo(p.parse("a & b"));
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)).formula(F.f)).isEqualTo(p.parse("a & b & ~x & ~y"));
   }
 
   @Test
   public void testFastEvaluable() {
     Assignment ass = new Assignment(Arrays.asList(F.A, F.NX), false);
-    Assert.assertFalse(ass.fastEvaluable());
+    softly.assertThat(ass.fastEvaluable()).isFalse();
     ass.convertToFastEvaluable();
-    Assert.assertTrue(ass.fastEvaluable());
-    Assert.assertEquals(Collections.singletonList(F.A), ass.positiveLiterals());
-    Assert.assertEquals(Collections.singletonList(F.NX), ass.negativeLiterals());
-    Assert.assertEquals(Collections.singletonList(F.X), ass.negativeVariables());
+    softly.assertThat(ass.fastEvaluable()).isTrue();
+    softly.assertThat(ass.positiveLiterals()).isEqualTo(Collections.singletonList(F.A));
+    softly.assertThat(ass.negativeLiterals()).isEqualTo(Collections.singletonList(F.NX));
+    softly.assertThat(ass.negativeVariables()).isEqualTo(Collections.singletonList(F.X));
     ass.addLiteral(F.NB);
     ass.addLiteral(F.Y);
-    Assert.assertEquals(Arrays.asList(F.A, F.Y), ass.positiveLiterals());
-    Assert.assertEquals(Arrays.asList(F.NB, F.NX), ass.negativeLiterals());
-    Assert.assertEquals(Arrays.asList(F.X, F.B), ass.negativeVariables());
-    Assert.assertTrue(ass.evaluateLit(F.Y));
-    Assert.assertFalse(ass.evaluateLit(F.B));
-    Assert.assertEquals(F.TRUE, ass.restrictLit(F.NB));
-    Assert.assertEquals(F.FALSE, ass.restrictLit(F.X));
-    Assert.assertEquals(null, ass.restrictLit(F.C));
-    Assert.assertEquals(F.f.and(F.A, F.NX, F.NB, F.Y), ass.formula(F.f));
+    softly.assertThat(ass.positiveLiterals()).isEqualTo(Arrays.asList(F.A, F.Y));
+    softly.assertThat(ass.negativeLiterals()).isEqualTo(Arrays.asList(F.NB, F.NX));
+    softly.assertThat(ass.negativeVariables()).isEqualTo(Arrays.asList(F.X, F.B));
+    softly.assertThat(ass.evaluateLit(F.Y)).isTrue();
+    softly.assertThat(ass.evaluateLit(F.B)).isFalse();
+    softly.assertThat(ass.restrictLit(F.NB)).isEqualTo(F.TRUE);
+    softly.assertThat(ass.restrictLit(F.X)).isEqualTo(F.FALSE);
+    softly.assertThat(ass.restrictLit(F.C)).isEqualTo(null);
+    softly.assertThat(ass.formula(F.f)).isEqualTo(F.f.and(F.A, F.NX, F.NB, F.Y));
     ass = new Assignment(Arrays.asList(F.A, F.NX), true);
-    Assert.assertTrue(ass.fastEvaluable());
+    softly.assertThat(ass.fastEvaluable()).isTrue();
     ass.convertToFastEvaluable();
-    Assert.assertTrue(ass.fastEvaluable());
+    softly.assertThat(ass.fastEvaluable()).isTrue();
   }
 
   @Test
@@ -169,9 +173,9 @@ public class AssignmentTest {
     ass.addLiteral(F.B);
     ass.addLiteral(F.NX);
     ass.addLiteral(F.NY);
-    Assert.assertEquals(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)).hashCode(), new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)).hashCode());
-    Assert.assertEquals(ass.hashCode(), new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)).hashCode());
-    Assert.assertEquals(ass.hashCode(), new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)).hashCode());
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)).hashCode()).isEqualTo(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)).hashCode());
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)).hashCode()).isEqualTo(ass.hashCode());
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)).hashCode()).isEqualTo(ass.hashCode());
   }
 
   @Test
@@ -181,17 +185,17 @@ public class AssignmentTest {
     ass.addLiteral(F.B);
     ass.addLiteral(F.NX);
     ass.addLiteral(F.NY);
-    Assert.assertEquals(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), false), new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), false));
-    Assert.assertEquals(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), false), new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), true));
-    Assert.assertEquals(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), true), new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), false));
-    Assert.assertEquals(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), true), new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), true));
-    Assert.assertEquals(ass, new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)));
-    Assert.assertEquals(ass, new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY)));
-    Assert.assertEquals(ass, ass);
-    Assert.assertNotEquals(ass, new Assignment(Arrays.asList(F.A, F.B, F.NX)));
-    Assert.assertNotEquals(ass, new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY, F.C)));
-    Assert.assertNotEquals(ass, null);
-    Assert.assertNotEquals(ass, F.TRUE);
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), false)).isEqualTo(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), false));
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), false)).isEqualTo(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), true));
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), true)).isEqualTo(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), false));
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), true)).isEqualTo(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), true));
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY))).isEqualTo(ass);
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY))).isEqualTo(ass);
+    softly.assertThat(ass).isEqualTo(ass);
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX))).isNotEqualTo(ass);
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY, F.C))).isNotEqualTo(ass);
+    softly.assertThat(ass).isNotNull();
+    softly.assertThat(ass).isNotEqualTo(F.TRUE);
   }
 
   @Test
@@ -206,15 +210,15 @@ public class AssignmentTest {
     lits.add(F.X);
     lits.add(F.C);
     Formula bc = ass.blockingClause(F.f, lits);
-    Assert.assertTrue(!bc.containsVariable(F.C));
-    Assert.assertEquals("~a | x", bc.toString());
+    softly.assertThat(bc.containsVariable(F.C)).isFalse();
+    softly.assertThat(bc.toString()).isEqualTo("~a | x");
   }
 
   @Test
   public void testToString() {
-    Assert.assertEquals("Assignment{pos=[], neg=[]}", new Assignment().toString());
-    Assert.assertEquals("Assignment{pos=[a], neg=[]}", new Assignment(Collections.singletonList(F.A)).toString());
-    Assert.assertEquals("Assignment{pos=[], neg=[~a]}", new Assignment(Collections.singletonList(F.NA)).toString());
-    Assert.assertEquals("Assignment{pos=[a, b, c], neg=[~x, ~y]}", new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY, F.C)).toString());
+    softly.assertThat(new Assignment().toString()).isEqualTo("Assignment{pos=[], neg=[]}");
+    softly.assertThat(new Assignment(Collections.singletonList(F.A)).toString()).isEqualTo("Assignment{pos=[a], neg=[]}");
+    softly.assertThat(new Assignment(Collections.singletonList(F.NA)).toString()).isEqualTo("Assignment{pos=[], neg=[~a]}");
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY, F.C)).toString()).isEqualTo("Assignment{pos=[a, b, c], neg=[~x, ~y]}");
   }
 }

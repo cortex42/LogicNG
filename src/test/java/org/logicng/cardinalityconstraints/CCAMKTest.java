@@ -28,8 +28,10 @@
 
 package org.logicng.cardinalityconstraints;
 
-import org.junit.Assert;
+import org.assertj.core.api.JUnitSoftAssertions;
+import org.junit.Rule;
 import org.junit.Test;
+import org.logicng.configurations.ConfigurationType;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.CType;
@@ -38,15 +40,17 @@ import org.logicng.formulas.Variable;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Unit tests for the at-most-k encoders.
- * @version 1.1
+ * @version 1.2
  * @since 1.0
  */
 public class CCAMKTest {
+
+  @Rule
+  public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
 
   private CCConfig[] configs;
 
@@ -75,7 +79,7 @@ public class CCAMKTest {
       testCC(10, 9, 1023, f, false);
       testCC(10, 10, 1, f, false);
       testCC(10, 15, 1, f, false);
-      Assert.assertTrue(f.newCCVariable().name().endsWith("_" + counter++));
+      softly.assertThat(f.newCCVariable().name()).as("New Var after Tests " + config).endsWith("_" + counter++);
     }
   }
 
@@ -94,7 +98,7 @@ public class CCAMKTest {
     testCC(10, 9, 1023, f, true);
     testCC(10, 10, 1024, f, true);
     testCC(10, 15, 1024, f, true);
-    Assert.assertTrue(f.newCCVariable().name().endsWith("_0"));
+    softly.assertThat(f.newCCVariable().name()).as("New Var after Tests ").endsWith("_0");
   }
 
   @Test
@@ -104,7 +108,7 @@ public class CCAMKTest {
     for (final CCConfig config : this.configs) {
       f.putConfiguration(config);
       testCC(150, 2, 1 + 150 + 11175, f, false);
-      Assert.assertTrue(f.newCCVariable().name().endsWith("_" + counter++));
+      softly.assertThat(f.newCCVariable().name()).as("New Var after Tests " + config).endsWith("_" + counter++);
     }
   }
 
@@ -112,7 +116,7 @@ public class CCAMKTest {
   public void testLargeAMKMiniCard() {
     final FormulaFactory f = new FormulaFactory();
     testCC(150, 2, 1 + 150 + 11175, f, true);
-    Assert.assertTrue(f.newCCVariable().name().endsWith("_0"));
+    softly.assertThat(f.newCCVariable().name()).as("New Var after Tests ").endsWith("_0");
   }
 
   private void testCC(int numLits, int rhs, int expected, final FormulaFactory f, boolean miniCard) {
@@ -121,11 +125,11 @@ public class CCAMKTest {
       problemLits[i] = f.variable("v" + i);
     final SATSolver solver = miniCard ? MiniSat.miniCard(f) : MiniSat.miniSat(f);
     solver.add(f.cc(CType.LE, rhs, problemLits));
-    Assert.assertEquals(Tristate.TRUE, solver.sat());
+    softly.assertThat(solver.sat()).as("SolverSAT " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isEqualTo(Tristate.TRUE);
     final List<Assignment> models = solver.enumerateAllModels(problemLits);
-    Assert.assertEquals(expected, models.size());
+    softly.assertThat(models.size()).as("ModelSize " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isEqualTo(expected);
     for (final Assignment model : models)
-      Assert.assertTrue(model.positiveLiterals().size() <= rhs);
+      softly.assertThat(model.positiveLiterals().size()).as("PosLits " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isLessThanOrEqualTo(rhs);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -142,19 +146,19 @@ public class CCAMKTest {
   @Test
   public void testToString() {
     FormulaFactory f = new FormulaFactory();
-    Assert.assertEquals("TOTALIZER", configs[0].amkEncoder.toString());
-    Assert.assertEquals("MODULAR_TOTALIZER", configs[1].amkEncoder.toString());
-    Assert.assertEquals("CARDINALITY_NETWORK", configs[2].amkEncoder.toString());
+    softly.assertThat(configs[0].amkEncoder.toString()).isEqualTo("TOTALIZER");
+    softly.assertThat(configs[1].amkEncoder.toString()).isEqualTo("MODULAR_TOTALIZER");
+    softly.assertThat(configs[2].amkEncoder.toString()).isEqualTo("CARDINALITY_NETWORK");
 
-    Assert.assertEquals("CCAMKTotalizer", new CCAMKTotalizer().toString());
-    Assert.assertEquals("CCAMKModularTotalizer", new CCAMKModularTotalizer(f).toString());
-    Assert.assertEquals("CCAMKCardinalityNetwork", new CCAMKCardinalityNetwork().toString());
+    softly.assertThat(new CCAMKTotalizer().toString()).isEqualTo("CCAMKTotalizer");
+    softly.assertThat(new CCAMKModularTotalizer(f).toString()).isEqualTo("CCAMKModularTotalizer");
+    softly.assertThat(new CCAMKCardinalityNetwork().toString()).isEqualTo("CCAMKCardinalityNetwork");
 
-    Assert.assertTrue(Arrays.asList(CCConfig.AMK_ENCODER.values()).contains(CCConfig.AMK_ENCODER.valueOf("TOTALIZER")));
+    softly.assertThat(CCConfig.AMK_ENCODER.values()).contains(CCConfig.AMK_ENCODER.valueOf("TOTALIZER"));
   }
 
   @Test
   public void testCCSorting() {
-    Assert.assertTrue(Arrays.asList(CCSorting.ImplicationDirection.values()).contains(CCSorting.ImplicationDirection.valueOf("INPUT_TO_OUTPUT")));
+    softly.assertThat(CCSorting.ImplicationDirection.values()).contains(CCSorting.ImplicationDirection.valueOf("INPUT_TO_OUTPUT"));
   }
 }

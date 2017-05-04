@@ -28,21 +28,25 @@
 
 package org.logicng.configurations;
 
-import org.junit.Assert;
+import org.assertj.core.api.JUnitSoftAssertions;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
  * Unit tests for the package configurations.
- * @version 1.1
+ * @version 1.2
  * @since 1.1
  */
 public class ConfigurationsTest {
 
+  @Rule
+  public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
+
   @Test
   public void testValueOf() {
-    Assert.assertEquals(ConfigurationType.CNF, ConfigurationType.valueOf("CNF"));
-    Assert.assertEquals(ConfigurationType.GLUCOSE, ConfigurationType.valueOf("GLUCOSE"));
-    Assert.assertEquals(ConfigurationType.MAXSAT, ConfigurationType.valueOf("MAXSAT"));
-    Assert.assertEquals(ConfigurationType.CC_ENCODER, ConfigurationType.valueOf("CC_ENCODER"));
+    softly.assertThat(ConfigurationType.valueOf("CNF")).isEqualTo(ConfigurationType.CNF);
+    softly.assertThat(ConfigurationType.valueOf("GLUCOSE")).isEqualTo(ConfigurationType.GLUCOSE);
+    softly.assertThat(ConfigurationType.valueOf("MAXSAT")).isEqualTo(ConfigurationType.MAXSAT);
+    softly.assertThat(ConfigurationType.valueOf("CC_ENCODER")).isEqualTo(ConfigurationType.CC_ENCODER);
   }
 }
