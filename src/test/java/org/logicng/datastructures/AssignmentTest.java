@@ -59,7 +59,7 @@ public class AssignmentTest {
 
   @Test
   public void testSize() {
-    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.X, F.Y), true).size()).isEqualTo(4);
+    softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.X, F.Y), true)).isEqualTo(4);
     softly.assertThat(new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY), false).size()).isEqualTo(4);
     softly.assertThat(new Assignment(Arrays.asList(F.A, F.NB)).size()).isEqualTo(2);
   }
@@ -72,7 +72,7 @@ public class AssignmentTest {
     ass1 = new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY));
     softly.assertThat(ass1.positiveLiterals()).isEqualTo(Arrays.asList(F.A, F.B));
     ass1 = new Assignment(Arrays.asList(F.NA, F.NB, F.NX, F.NY));
-    softly.assertThat(ass1.positiveLiterals().size()).isEqualTo(0);
+    softly.assertThat(ass1.positiveLiterals()).hasSize(0);
   }
 
   @Test
@@ -83,7 +83,7 @@ public class AssignmentTest {
     ass = new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY));
     softly.assertThat(ass.negativeLiterals()).isEqualTo(Arrays.asList(F.NX, F.NY));
     ass = new Assignment(Arrays.asList(F.A, F.B, F.X, F.Y));
-    softly.assertThat(ass.negativeLiterals().size()).isEqualTo(0);
+    softly.assertThat(ass.negativeLiterals()).hasSize(0);
   }
 
   @Test
@@ -95,7 +95,7 @@ public class AssignmentTest {
     ass = new Assignment(Arrays.asList(F.A, F.B, F.NX, F.NY));
     softly.assertThat(ass.negativeVariables()).isEqualTo(Arrays.asList(F.X, F.Y));
     ass = new Assignment(Arrays.asList(F.A, F.B, F.X, F.Y));
-    softly.assertThat(ass.negativeVariables().size()).isEqualTo(0);
+    softly.assertThat(ass.negativeVariables()).hasSize(0);
   }
 
   @Test

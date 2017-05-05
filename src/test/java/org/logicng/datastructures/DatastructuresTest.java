@@ -28,7 +28,9 @@
 
 package org.logicng.datastructures;
 
-import org.junit.Assert;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.JUnitSoftAssertions;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
@@ -38,16 +40,19 @@ import org.junit.Test;
  */
 public class DatastructuresTest {
 
+  @Rule
+  public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
+
   @Test
   public void testTristate() {
-    Assert.assertEquals(Tristate.TRUE, Tristate.valueOf("TRUE"));
-    Assert.assertEquals(Tristate.FALSE, Tristate.valueOf("FALSE"));
-    Assert.assertEquals(Tristate.UNDEF, Tristate.valueOf("UNDEF"));
+    softly.assertThat(Tristate.TRUE).isEqualTo(Tristate.valueOf("TRUE"));
+    softly.assertThat(Tristate.FALSE).isEqualTo(Tristate.valueOf("FALSE"));
+    softly.assertThat(Tristate.UNDEF).isEqualTo(Tristate.valueOf("UNDEF"));
   }
 
   @Test
   public void testEncodingAuxiliaryVariable() {
     EncodingAuxiliaryVariable eav = new EncodingAuxiliaryVariable("var", false);
-    Assert.assertEquals("var", eav.toString());
+    Assertions.assertThat(eav.toString()).isEqualTo("var");
   }
 }

@@ -28,7 +28,9 @@
 
 package org.logicng.explanations.unsatcores;
 
-import org.junit.Assert;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.JUnitSoftAssertions;
+import org.junit.Rule;
 import org.junit.Test;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
@@ -47,10 +49,13 @@ import java.util.List;
 
 /**
  * Unit tests for the class {@link MUSGeneration}.
- * @version 1.1
+ * @version 1.2
  * @since 1.1
  */
 public class MUSGenerationTest {
+
+  @Rule
+  public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
 
   private final FormulaFactory f = new FormulaFactory();
   private final PigeonHoleGenerator pg = new PigeonHoleGenerator(f);
@@ -119,7 +124,7 @@ public class MUSGenerationTest {
   @Test
   public void testToString() {
     final MUSGeneration mus = new MUSGeneration();
-    Assert.assertEquals("MUSGeneration", mus.toString());
+    Assertions.assertThat(mus.toString()).isEqualTo("MUSGeneration");
   }
 
   private List<Proposition> generatePGPropositions(int n) {
@@ -149,14 +154,14 @@ public class MUSGenerationTest {
   }
 
   private void testMUS(final List<Proposition> original, final UNSATCore mus) {
-    Assert.assertTrue(mus.isMUS());
-    Assert.assertTrue(mus.propositions().size() <= original.size());
+    softly.assertThat(mus.isMUS()).isTrue();
+    softly.assertThat(mus.propositions().size()).isLessThanOrEqualTo(original.size());
     final MiniSat miniSat = MiniSat.miniSat(this.f);
     for (final Proposition p : mus.propositions()) {
-      Assert.assertTrue(original.contains(p));
-      Assert.assertEquals(Tristate.TRUE, miniSat.sat());
+      softly.assertThat(original).contains(p);
+      softly.assertThat(miniSat.sat()).isEqualTo(Tristate.TRUE);
       miniSat.add(p);
     }
-    Assert.assertEquals(Tristate.FALSE, miniSat.sat());
+    softly.assertThat(miniSat.sat()).isEqualTo(Tristate.FALSE);
   }
 }

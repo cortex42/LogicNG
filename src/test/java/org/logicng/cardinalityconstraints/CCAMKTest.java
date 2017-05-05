@@ -28,6 +28,7 @@
 
 package org.logicng.cardinalityconstraints;
 
+import org.assertj.core.api.Assertions;
 import org.assertj.core.api.JUnitSoftAssertions;
 import org.junit.Rule;
 import org.junit.Test;
@@ -127,7 +128,7 @@ public class CCAMKTest {
     solver.add(f.cc(CType.LE, rhs, problemLits));
     softly.assertThat(solver.sat()).as("SolverSAT " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isEqualTo(Tristate.TRUE);
     final List<Assignment> models = solver.enumerateAllModels(problemLits);
-    softly.assertThat(models.size()).as("ModelSize " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isEqualTo(expected);
+    softly.assertThat(models).as("ModelSize " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).hasSize(expected);
     for (final Assignment model : models)
       softly.assertThat(model.positiveLiterals().size()).as("PosLits " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isLessThanOrEqualTo(rhs);
   }
@@ -159,6 +160,6 @@ public class CCAMKTest {
 
   @Test
   public void testCCSorting() {
-    softly.assertThat(CCSorting.ImplicationDirection.values()).contains(CCSorting.ImplicationDirection.valueOf("INPUT_TO_OUTPUT"));
+    Assertions.assertThat(CCSorting.ImplicationDirection.values()).contains(CCSorting.ImplicationDirection.valueOf("INPUT_TO_OUTPUT"));
   }
 }

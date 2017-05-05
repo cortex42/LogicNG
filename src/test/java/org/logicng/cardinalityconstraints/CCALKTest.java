@@ -96,7 +96,7 @@ public class CCALKTest {
     else
       softly.assertThat(solver.sat()).as("SolverSAT " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isEqualTo(Tristate.FALSE);
     final List<Assignment> models = solver.enumerateAllModels(problemLits, new NumberOfModelsHandler(12000));
-    softly.assertThat(models.size()).as("ModelSize " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isEqualTo(expected);
+    softly.assertThat(models).as("ModelSize " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).hasSize(expected);
     for (final Assignment model : models)
       softly.assertThat(model.positiveLiterals().size()).as("PosLits " + numLits + ", " + rhs + ", " + expected + ", " + f.configurationFor(ConfigurationType.CC_ENCODER)).isGreaterThanOrEqualTo(rhs);
   }
