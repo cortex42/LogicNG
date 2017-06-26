@@ -37,6 +37,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Unit tests for the {@link GraphDotFileWriter}.
@@ -81,8 +83,35 @@ public class GraphDotFileWriterTest {
   private void assertFilesEqual(final File expected, final File actual) throws IOException {
     final BufferedReader expReader = new BufferedReader(new FileReader(expected));
     final BufferedReader actReader = new BufferedReader(new FileReader(actual));
-    for (int lineNumber = 1; expReader.ready() && actReader.ready(); lineNumber++)
-      Assert.assertEquals("Line " + lineNumber + " not equal", expReader.readLine(), actReader.readLine());
+    List<String> expEdgeLines = new ArrayList<>();
+    List<String> actEdgeLines = new ArrayList<>();
+    List<String> expNodeLines = new ArrayList<>();
+    List<String> actNodeLines = new ArrayList<>();
+    for (int lineNumber = 1; expReader.ready() && actReader.ready(); lineNumber++) {
+      String exp = expReader.readLine();
+      String act = actReader.readLine();
+      if (exp.contains("{") || exp.contains("}")) {
+        Assert.assertEquals("Line " + lineNumber + " not equal", exp, act);
+      } else {
+        if (exp.contains("-")) {
+          expEdgeLines.add(exp);
+        } else {
+          expNodeLines.add(exp);
+        }
+        if (act.contains("-")) {
+          actEdgeLines.add(act);
+        } else {
+          actNodeLines.add(act);
+        }
+      }
+    }
+    for (String actNode : actNodeLines) {
+      Assert.assertTrue(expNodeLines.contains(actNode));
+    }
+    for (String actEdge : actEdgeLines) {
+      String[] actEdgeNodes = actEdge.trim().split(" -- ");
+      Assert.assertTrue(expEdgeLines.contains(actEdge) || expEdgeLines.contains("  " + actEdgeNodes[1] + " -- " + actEdgeNodes[0]));
+    }
     if (expReader.ready())
       Assert.fail("Missing line(s) found, starting with \"" + expReader.readLine() + "\"");
     if (actReader.ready())
