@@ -12,6 +12,8 @@ import java.util.Set;
 
 /**
  * Unit tests for the class {@link ConnectedComponentsComputer}.
+ * @version 1.2
+ * @since 1.2
  */
 public class ConnectedComponentsComputerTest {
 
