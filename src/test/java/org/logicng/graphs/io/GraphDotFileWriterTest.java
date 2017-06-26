@@ -26,103 +26,66 @@
 //                                                                       //
 ///////////////////////////////////////////////////////////////////////////
 
-package org.logicng.graphs.datastructures;
+package org.logicng.graphs.io;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
+import org.junit.Assert;
+import org.junit.Test;
+import org.logicng.graphs.datastructures.Graph;
+import org.logicng.graphs.datastructures.GraphTest;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
- * A generic node of a graph.
+ * Unit tests for the {@link GraphDotFileWriter}.
  * @version 1.2
  * @since 1.2
  */
-public class Node<T> {
+public class GraphDotFileWriterTest {
 
-  private Graph<T> g;
-  private T id;
-  private Set<Node<T>> neighbours;
 
-  /**
-   * Constructor.
-   * @param id the id of the node
-   * @param g  the graph the node will be a part of
-   */
-  Node(T id, Graph g) {
-    this.id = id;
-    this.g = g;
-    this.neighbours = new LinkedHashSet<>();
+  @Test
+  public void testSmall() throws IOException {
+    Graph<String> g = new Graph<>("Stringraph");
+    g.connect(g.node("A"), g.node("B"));
+    g.node("C");
+    testFiles("small", g);
   }
 
-  /**
-   * Adds the given node to the neighbours of this node.
-   * @param o the given node
-   */
-  void connectTo(Node<T> o) {
-    if (o.equals(this)) {
-      return;
+  @Test
+  public void test20() throws IOException {
+    Graph<Long> g = GraphTest.getLongGraph("30");
+    for (long i = 0; i < 30; i++) {
+      g.node(i);
     }
-    neighbours.add(o);
+    testFiles("30", g);
   }
 
-  /**
-   * Removes the given node from the neighbours of this node.
-   * @param o the given node
-   */
-  void disconnectFrom(Node<T> o) {
-    neighbours.remove(o);
+  @Test
+  public void test50p1() throws IOException {
+    Graph<Long> g = GraphTest.getLongGraph("50");
+    g.node(51L);
+    testFiles("50p1", g);
   }
 
-  /**
-   * Returns the id of the node.
-   * @return the id of the node
-   */
-  public T id() {
-    return id;
+
+  private void testFiles(final String fileName, final Graph g) throws IOException {
+    GraphDotFileWriter.write("tests/graphs/io/temp/" + fileName + ".dot", g);
+    final File expected = new File("tests/graphs/io/graphs-dot/" + fileName + ".dot");
+    final File temp = new File("tests/graphs/io/temp/" + fileName + ".dot");
+    assertFilesEqual(expected, temp);
   }
 
-  /**
-   * Returns the neighbours of the node.
-   * @return the neighbours of the node
-   */
-  public Set<Node<T>> neighbours() {
-    return new LinkedHashSet<>(neighbours);
-  }
-
-  /**
-   * Returns the graph to which the node belongs.
-   * @return the node's graph
-   */
-  public Graph<T> graph() {
-    return g;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    Node<?> node = (Node<?>) o;
-
-    if (!g.equals(node.g)) return false;
-    return id != null ? id.equals(node.id) : node.id == null;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = g.hashCode();
-    result = 31 * result + (id != null ? id.hashCode() : 0);
-    return result;
-  }
-
-  @Override
-  public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("Node{id=").append(id).append(", neighbours:");
-    for (Node neighbour : neighbours) {
-      sb.append(neighbour.id()).append(",");
-    }
-    sb.deleteCharAt(sb.length() - 1);
-    sb.append("}");
-    return sb.toString();
+  private void assertFilesEqual(final File expected, final File actual) throws IOException {
+    final BufferedReader expReader = new BufferedReader(new FileReader(expected));
+    final BufferedReader actReader = new BufferedReader(new FileReader(actual));
+    for (int lineNumber = 1; expReader.ready() && actReader.ready(); lineNumber++)
+      Assert.assertEquals("Line " + lineNumber + " not equal", expReader.readLine(), actReader.readLine());
+    if (expReader.ready())
+      Assert.fail("Missing line(s) found, starting with \"" + expReader.readLine() + "\"");
+    if (actReader.ready())
+      Assert.fail("Additional line(s) found, starting with \"" + actReader.readLine() + "\"");
   }
 }

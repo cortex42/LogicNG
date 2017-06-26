@@ -31,10 +31,9 @@ package org.logicng.graphs.algorithms;
 import org.junit.Assert;
 import org.junit.Test;
 import org.logicng.graphs.datastructures.Graph;
+import org.logicng.graphs.datastructures.GraphTest;
 import org.logicng.graphs.datastructures.Node;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Set;
@@ -49,23 +48,12 @@ public class BronKerboschTest {
 
   @Test
   public void graph50Test() throws IOException {
-    Graph<Long> g = new Graph<>("5o");
-    for (long i = 0; i < 100; i++) {
-      g.node(i);
-    }
-
-    final BufferedReader reader = new BufferedReader(new FileReader("tests/graphs/graph50.txt"));
-
-    while (reader.ready()) {
-      final String line = reader.readLine().trim();
-      String[] nodePair = line.split(":");
-      g.connect(g.node(Long.valueOf(nodePair[0])), g.node(Long.valueOf(nodePair[1])));
-    }
+    Graph<Long> g = GraphTest.getLongGraph("50");
 
     BronKerbosch<Long> bkp = new BronKerbosch<>(g);
     Set<SortedSet<Node<Long>>> resultBkp = bkp.compute();
 
-    Assert.assertEquals(960, resultBkp.size());
+    Assert.assertEquals(910, resultBkp.size());
 
     for (SortedSet<Node<Long>> clique1 : resultBkp) {
       for (SortedSet<Node<Long>> clique2 : resultBkp) {

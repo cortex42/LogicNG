@@ -34,6 +34,10 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  * Unit tests for the class {@link Graph} and the class {@link Node}.
  * @version 1.2
@@ -95,5 +99,19 @@ public class GraphTest {
     Assert.assertTrue(an.neighbours().isEmpty());
 
     Assert.assertEquals(3, g.nodes().size());
+  }
+
+  public static Graph<Long> getLongGraph(String id) throws IOException {
+    Graph<Long> g = new Graph<>(id + "-Long");
+
+    final BufferedReader reader = new BufferedReader(new FileReader("tests/graphs/graph" + id + ".txt"));
+
+    while (reader.ready()) {
+      final String line = reader.readLine().trim();
+      String[] nodePair = line.split(":");
+      g.connect(g.node(Long.valueOf(nodePair[0])), g.node(Long.valueOf(nodePair[1])));
+    }
+
+    return g;
   }
 }
